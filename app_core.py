@@ -11,6 +11,8 @@ st.set_page_config(
     layout="wide"
 )
 # --- Hide Streamlit's GitHub Icon, Menu, and Footer ---
+
+# ⭐ PATCH 1 — TOOLBAR / GITHUB / 3-DOT REMOVAL
 st.markdown("""
 <style>
 
@@ -52,6 +54,7 @@ footer, .stFooter {
 </style>
 """, unsafe_allow_html=True)
 
+# ⭐ PATCH 2 — FULL DARK MODE (APK-SAFE, NO WHITE FLASH)
 st.markdown("""
 <style>
 
@@ -95,6 +98,84 @@ label, p, span, h2, h3, h4, h5, h6 {
 /* REMOVE ANY LIGHT ELEMENT FLASHES */
 * {
     background: transparent !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# ⭐ PATCH 3 — SIDEBAR FIX (APK-SAFE + VIDEO-SAFE + DARK-MODE SAFE)
+st.markdown("""
+<style>
+
+/* --- SIDEBAR MUST ALWAYS SIT ABOVE VIDEO AND CONTENT --- */
+[data-testid="stSidebar"] {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 260px !important;
+    height: 100vh !important;
+    z-index: 999999 !important;
+    background: rgba(0,0,0,0.90) !important;
+    border-right: 1px solid rgba(0, 234, 255, 0.18);
+    overflow-y: auto !important;
+}
+
+/* --- SHIFT MAIN APP RIGHT SO NOTHING SITS UNDER THE SIDEBAR --- */
+[data-testid="stAppViewContainer"] {
+    margin-left: 260px !important;
+    padding-left: 1rem !important;
+    min-width: calc(100% - 260px) !important;
+}
+
+/* --- BLOCK-CONTAINER MUST NOT SLIDE UNDER VIDEO OR SIDEBAR --- */
+.block-container {
+    padding-top: 1rem !important;
+    max-width: calc(100% - 260px) !important;
+}
+
+/* --- PREVENT TITLE OR VIDEO FROM OVERLAYING SIDEBAR --- */
+video {
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.stApp {
+    overflow: hidden !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# ⭐ THE FIX — PATCH 4 (VIDEO RESTORATION + DARK MODE SAFE)
+st.markdown("""
+<style>
+
+/* --- ENSURE VIDEO BACKGROUND FILLS THE SCREEN --- */
+video {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    object-fit: cover !important;
+    z-index: -1 !important; /* behind everything */
+    pointer-events: none !important; /* sidebar stays clickable */
+}
+
+/* --- ENSURE NO WHITE BACKGROUND BEHIND VIDEO --- */
+html, body, [data-testid="stAppViewContainer"] {
+    background: transparent !important;
+}
+
+/* --- BLOCK-CONTAINER MUST BE TRANSPARENT --- */
+.block-container {
+    background: transparent !important;
+}
+
+/* --- ENSURE VIDEO IS NOT SCALED DOWN BY FLEX OR OVERLAYS --- */
+[data-testid="stApp"] {
+    background: transparent !important;
+    overflow: hidden !important;
 }
 
 </style>
