@@ -10,6 +10,13 @@ st.set_page_config(
     page_icon="images/cyberpunk.ico",
     layout="wide"
 )
+# ✅ PATCH: FORCE DESKTOP MODE IN ANDROID WEBVIEW
+st.markdown("""
+<head>
+<meta name="viewport" content="width=1280, initial-scale=0.85">
+</head>
+""", unsafe_allow_html=True)
+
 # --- Hide Streamlit's GitHub Icon, Menu, and Footer ---
 
 # ⭐ PATCH 1 — TOOLBAR / GITHUB / 3-DOT REMOVAL
