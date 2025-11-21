@@ -44,13 +44,68 @@ header, footer {
 """, unsafe_allow_html=True)
 
 # -------------------------------------------------------
-# RESTORE SIDEBAR IN ANDROID WEBVIEW
-# (WebView forces small viewport → Streamlit hides sidebar)
+# RESTORE SIDEBAR IN ANDROID WEBVIEW (RESPONSIVE AND SAFE)
+# (Avoid min-width tricks that break mobile layout)
 # -------------------------------------------------------
 st.markdown("""
 <style>
-html, body, [data-testid="stAppViewContainer"] {
-    min-width: 1000px !important;
+/* Desktop / large tablet: show sidebar as fixed column and push content */
+@media (min-width: 900px) {
+    [data-testid="stSidebar"] {
+        position: fixed !important;
+        left: 0;
+        top: 0;
+        width: 260px !important;
+        height: 100vh !important;
+        z-index: 1000 !important;
+        transform: none !important; /* ensure it's visible */
+    }
+    [data-testid="stAppViewContainer"] {
+        margin-left: 260px !important;
+        width: calc(100% - 260px) !important;
+        min-width: 0 !important;
+    }
+    .block-container {
+        max-width: calc(100% - 260px) !important;
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+    }
+}
+
+/* Small screens / phones: make sidebar overlay (visible) but do not push content off-screen */
+@media (max-width: 899px) {
+    [data-testid="stSidebar"] {
+        position: fixed !important;
+        left: 0;
+        top: 0;
+        width: 260px !important;
+        height: 100vh !important;
+        z-index: 1000 !important;
+        transform: none !important;
+        background: rgba(13,13,13,0.98) !important;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.6) !important;
+    }
+    /* Keep main content full width and allow scrolling under the overlay sidebar */
+    [data-testid="stAppViewContainer"] {
+        margin-left: 0 !important;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+    .block-container {
+        max-width: 100% !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+}
+
+/* General protections so the UI doesn't collapse */
+.stApp > div[style] { position: relative; z-index: 1; }
+.block-container { box-sizing: border-box; }
+
+/* Ensure charts and video cover correctly and aren't clipped */
+video, .plotly, .stPlotlyChart {
+    max-width: 100% !important;
+    height: auto !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -68,16 +123,26 @@ section[data-testid="stSidebar"] {
     background-color: #0d0d0d !important;
     color: #e0e0e0 !important;
 }
+
+/* Avoid overriding h1 so your title keeps its custom style */
 h2, h3, h4, h5, h6, p, span, label {
     color: #e0e0e0 !important;
 }
+
 input, textarea, select {
     background-color: #111 !important;
     color: #e0e0e0 !important;
     border: 1px solid #333 !important;
 }
+
 .plotly {
     background-color: rgba(0,0,0,0) !important;
+}
+
+/* Ensure Streamlit metric colors remain visible */
+[data-testid="stMetricLabel"], [data-testid="stMetricValue"] {
+    color: #00eaff !important;
+    text-shadow: 0 0 6px rgba(0,234,255,0.8);
 }
 </style>
 """
