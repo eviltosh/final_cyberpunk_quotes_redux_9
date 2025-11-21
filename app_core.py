@@ -16,6 +16,17 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+# --- FORCE SIDEBAR VISIBLE INSIDE ANDROID WEBVIEW ---
+st.markdown("""
+<style>
+/* Trick Streamlit into desktop mode so the sidebar is always visible */
+@media (max-width: 2000px) {
+    html, body, [data-testid="stAppViewContainer"], section.main {
+        min-width: 1200px !important;
+    }
+}
+</style>
+""", unsafe_allow_html=True)
 
 # --- Hide Streamlit's GitHub Icon, Menu, and Footer ---
 
