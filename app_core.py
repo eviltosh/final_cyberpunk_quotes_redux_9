@@ -181,6 +181,43 @@ html, body, [data-testid="stAppViewContainer"] {
 </style>
 """, unsafe_allow_html=True)
 
+# ⭐ Patch 5 — LAYOUT NORMALIZATION (the anti–one-column fix)
+st.markdown("""
+<style>
+
+/* --- RESTORE STREAMLIT DESKTOP LAYOUT EVEN IN MOBILE WEBVIEW --- */
+[data-testid="stAppViewContainer"] {
+    display: flex !important;
+    flex-direction: row !important;
+}
+
+/* --- PREVENT COLUMN COLLAPSE --- */
+[data-testid="stMain"] {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+}
+
+/* --- FORCE CONTENT TO USE FULL WIDTH --- */
+.block-container {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* --- PREVENT SIDEBAR + VIDEO COLLAPSE BEHAVIOR --- */
+.stApp {
+    display: block !important;
+    overflow-x: hidden !important;
+}
+
+/* --- PREVENT BODY OVERFLOW WHICH BREAKS LAYOUT --- */
+html, body {
+    overflow-x: hidden !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
 
 # -------------------------------------------------------
 # CSS-ONLY SPLASH (SAFE)
