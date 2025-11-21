@@ -192,31 +192,15 @@ html, body, [data-testid="stAppViewContainer"] {
 st.markdown("""
 <style>
 
-/* --- RESTORE STREAMLIT DESKTOP LAYOUT EVEN IN MOBILE WEBVIEW --- */
-[data-testid="stAppViewContainer"] {
-    display: flex !important;
-    flex-direction: row !important;
-}
+/* --- FIXED PATCH 5 — SAFE LAYOUT NORMALIZATION --- */
+<style>
 
-/* --- PREVENT COLUMN COLLAPSE --- */
+/* Prevent column collapse */
 [data-testid="stMain"] {
-    flex: 1 1 auto !important;
     width: 100% !important;
 }
 
-/* --- FORCE CONTENT TO USE FULL WIDTH --- */
-.block-container {
-    width: 100% !important;
-    max-width: 100% !important;
-}
-
-/* --- PREVENT SIDEBAR + VIDEO COLLAPSE BEHAVIOR --- */
-.stApp {
-    display: block !important;
-    overflow-x: hidden !important;
-}
-
-/* --- PREVENT BODY OVERFLOW WHICH BREAKS LAYOUT --- */
+/* Prevent body from overflowing horizontally */
 html, body {
     overflow-x: hidden !important;
 }
