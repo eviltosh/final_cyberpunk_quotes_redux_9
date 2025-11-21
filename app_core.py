@@ -5,46 +5,20 @@ import base64
 # -------------------------------------------------------
 # MUST BE FIRST STREAMLIT COMMAND
 # -------------------------------------------------------
+# st.set_page_config(
+#     page_title="Cyberpunk Stock Tracker",
+#     page_icon="images/cyberpunk.ico",
+#     layout="wide"
+# )
 st.set_page_config(
-    page_title="Cyberpunk Stock Tracker",
+    page_title="CYBERPUNK QUOTES",
     page_icon="images/cyberpunk.ico",
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
 # --- Hide Streamlit's GitHub Icon, Menu, and Footer ---
-# Force desktop layout inside WebView
-st.markdown("""
-<style>
-@media (max-width: 2000px) {
-    /* Expand content so Streamlit shows sidebar */
-    section.main > div { 
-        max-width: 2000px !important;
-    }
-    .block-container {
-        padding-left: 2rem !important;
-        padding-right: 2rem !important;
-    }
-}
-</style>
-""", unsafe_allow_html=True)
 
-# Force dark mode only
-st.markdown("<style>:root{color-scheme: dark;}</style>", unsafe_allow_html=True)
-
-# Restore your original title style
-st.markdown("""
-<style>
-.cyberpunk-title {
-    font-family: 'Major Mono Display', monospace !important;
-    font-size: 72px !important;
-    text-align: center !important;
-    color: #00ffff !important;
-    text-shadow: 0 0 20px #00ffff;
-}
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown('<h1 class="cyberpunk-title">CYBERPUNK QUOTES</h1>', unsafe_allow_html=True)
 
 # --- FORCE DARK MODE HERE ---
 dark_mode_css = """
@@ -497,7 +471,5 @@ def run_app():
 # run
 if __name__ == "__main__":
     run_app()
-
-
 
 
