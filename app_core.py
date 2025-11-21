@@ -5,74 +5,50 @@ import base64
 # -------------------------------------------------------
 # MUST BE FIRST STREAMLIT COMMAND
 # -------------------------------------------------------
-# st.set_page_config(
-#     page_title="Cyberpunk Stock Tracker",
-#     page_icon="images/cyberpunk.ico",
-#     layout="wide"
-# )
 st.set_page_config(
-    page_title="CYBERPUNK QUOTES",
+    page_title="Cyberpunk Stock Tracker",
     page_icon="images/cyberpunk.ico",
-    layout="wide",
-
+    layout="wide"
 )
-# --- FORCE SIDEBAR VISIBLE INSIDE ANDROID WEBVIEW ---
+
+# --- REMOVE TOP-RIGHT MENU, GITHUB, & FORCE DARK MODE ---
 st.markdown("""
 <style>
-/* Trick Streamlit into desktop mode so the sidebar is always visible */
-@media (max-width: 2000px) {
-    html, body, [data-testid="stAppViewContainer"], section.main {
-        min-width: 1200px !important;
-    }
+
+/* Remove Streamlit's three-dots menu */
+[data-testid="stToolbar"] {
+    display: none !important;
 }
+
+/* Remove GitHub icon + Streamlit decoration bar */
+[data-testid="stDecoration"] {
+    display: none !important;
+}
+
+/* Remove "Made with Streamlit" footer if present */
+footer, header {
+    visibility: hidden !important;
+    height: 0px !important;
+}
+
+/* Force dark mode only */
+:root {
+    color-scheme: dark;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
 # --- Hide Streamlit's GitHub Icon, Menu, and Footer ---
-
-
-# --- FORCE DARK MODE HERE ---
-dark_mode_css = """
+# --- FIX: FORCE SIDEBAR TO SHOW IN ANDROID WEBVIEW ---
+st.markdown("""
 <style>
-[data-testid="stAppViewContainer"] {
-    background-color: #0a0a0a !important;
-    color: #e0e0e0 !important;
-}
-
-section[data-testid="stSidebar"] {
-    background-color: #0d0d0d !important;
-    color: #e0e0e0 !important;
-}
-
-h2, h3, h4, h5, h6, p, span, label {
-    color: #e0e0e0 !important;
-}
-
-input, textarea, select {
-    background-color: #111 !important;
-    color: #e0e0e0 !important;
-    border: 1px solid #333 !important;
-}
-
-.plotly {
-    background-color: rgba(0,0,0,0) !important;
+/* Do NOT change layout — only expand the viewport width */
+html, body, [data-testid="stAppViewContainer"] {
+    min-width: 1000px !important;
 }
 </style>
-"""
-st.markdown(dark_mode_css, unsafe_allow_html=True)
-
-# --- HIDE STREAMLIT TOOLBAR ---
-hide_streamlit_toolbar = """
-<style>
-#MainMenu {visibility: hidden;}
-header {visibility: hidden !important;}
-footer {visibility: hidden !important;}
-section[data-testid="stToolbar"] {visibility: hidden !important;}
-</style>
-"""
-st.markdown(hide_streamlit_toolbar, unsafe_allow_html=True)
-
-# --- Your real app starts below ---
+""", unsafe_allow_html=True)
 
 
 # -------------------------------------------------------
