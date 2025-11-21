@@ -5,15 +5,20 @@ import base64
 # -------------------------------------------------------
 # MUST BE FIRST STREAMLIT COMMAND
 # -------------------------------------------------------
-# st.set_page_config(
-#     page_title="Cyberpunk Stock Tracker",
-#     page_icon="images/cyberpunk.ico",
-#     layout="wide"
-# )
 
 
+st.markdown("""
+<style>
+/* Prevent white background behind splash during hydration */
+html, body {
+    background: #000 !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
-# --- CONSOLIDATED SIDEBAR / Z-INDEX / VIDEO / THEME FIXES (mobile-safe) ---
+# -------------------------------------------------------
+# CONSOLIDATED SIDEBAR / Z-INDEX / VIDEO / THEME FIXES (mobile-safe)
+# -------------------------------------------------------
 st.markdown("""
 <style>
 /* Hide Streamlit toolbar + decoration */
@@ -96,7 +101,7 @@ video[playsinline], video {
     width: 100vw !important;
     height: 100vh !important;
     object-fit: cover !important;
-    z-index: -2 !important;
+    z-index: -5 !important;
 }
 
 /* Splash sits above video but under sidebar */
@@ -104,11 +109,16 @@ video[playsinline], video {
     z-index: 2000 !important;
 }
 
+/* Ensure main content and sidebar stacking above video */
+[data-testid="stAppViewContainer"], [data-testid="stMain"], .block-container {
+    position: relative !important;
+    z-index: 50000 !important;
+}
+
 /* Safety: app stacking */
 .stApp > div[style] { position: relative; z-index: 1; }
 </style>
 """, unsafe_allow_html=True)
-
 
 def splash_screen(image_path: str):
     try:
@@ -129,7 +139,7 @@ def splash_screen(image_path: str):
                 left: 0;
                 width: 100vw;
                 height: 100vh;
-                background: black;
+                background: transparent;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -142,64 +152,103 @@ def splash_screen(image_path: str):
             </div>
             """
             st.markdown(splash_html, unsafe_allow_html=True)
-    except:
+    except Exception:
         pass
 
 # -------------------------------------------------------
-# ZERO-FLASH FIX — KEEP SPLASH UNTIL STREAMLIT IS READY
+# ZERO-WHITE-FLASH FIX
 # -------------------------------------------------------
+# ------------------- ZERO-WHITE-FLASH FIX (REPLACEMENT) -------------------
 st.markdown("""
 <style>
-/* Force the entire DOM to stay black so Streamlit cannot flash white */
-html, body, [data-testid="stAppViewContainer"],
-[data-testid="stApp"], [data-testid="stBody"],
-[data-testid="stMain"], .block-container {
-    background: black !important;
+/* Keep the WebView background black while the app hydrates so the splash does not sit on white */
+html, body {
+    background: #000 !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch !important;
 }
 
-/* Hold the splash until JS removes it */
+/* Ensure the app container is transparent so video can show through,
+   but do NOT force the root container transparent BEFORE the video loads.
+   We keep the app container transparent so once the video is present it will be visible. */
+[data-testid="stAppViewContainer"],
+[data-testid="stApp"], 
+[data-testid="stBody"], 
+[data-testid="stMain"],
+.block-container {
+    background: transparent !important;
+    position: relative !important;
+    overflow: visible !important;
+}
+
+/* Ensure the splash sits above the video and will fade out, but does not block interactions after fade */
 #splash-screen {
     opacity: 1 !important;
     transition: opacity 0.8s ease-out;
+    z-index: 2000 !important;       /* stays above video which is at -5 */
+    pointer-events: none !important;/* don't block touches after fade */
+}
+
+/* Video should be behind content, but above the page background */
+video[playsinline], video {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    object-fit: cover !important;
+    z-index: -5 !important;
+}
+
+/* Safety: make sure main content and sidebar are stacked above video */
+[data-testid="stAppViewContainer"], [data-testid="stMain"], .block-container {
+    z-index: 50000 !important;
+}
+
+/* Make sure nothing inadvertently disables scrolling */
+body, #root, #MainMenu, [data-testid="stApp"] {
+    overflow: auto !important;
+}
+
+/* small-screen friendly: allow full scrolling on mobile */
+@media (max-width: 699px) {
+    .block-container {
+        padding-bottom: 3rem !important;
+    }
 }
 </style>
 
 <script>
-// delay removal until Streamlit fully hydrates
 window.addEventListener("load", function() {
     const splash = document.getElementById("splash-screen");
     if (!splash) return;
-
-    // Poll until Streamlit app is rendered
     const checkReady = setInterval(() => {
-        // Streamlit attaches stApp after hydration
         const appRoot = document.querySelector('[data-testid="stApp"]');
-
         if (appRoot && appRoot.innerHTML.trim().length > 0) {
             clearInterval(checkReady);
-
-            // Fade out
+            // fade out splash and remove it from flow after animation
             splash.style.opacity = "0";
             setTimeout(() => {
-                splash.style.display = "none";
+                try { splash.style.display = "none"; } catch(e) {}
             }, 900);
         }
     }, 50);
 });
 </script>
 """, unsafe_allow_html=True)
+# -------------------------------------------------------------------------
 
 # -------------------------------------------------------
-# CALL SPLASH **AFTER** page_config
+# CALL SPLASH AFTER PAGE CONFIG
 # -------------------------------------------------------
 splash_screen("images/cyberpunk.jpg")
 
 # -------------------------------------------------------
-# APP ENTRYPOINT
+# MAIN APP
 # -------------------------------------------------------
 def run_app():
-
-
 
     import streamlit.components.v1 as components
     import yfinance as yf
@@ -210,7 +259,6 @@ def run_app():
     import time
     import pandas as pd
     import plotly.graph_objects as go
-
 
     # ------------------------------------------------------------------
     # Import rendering helpers from app_render.py (no circular imports)
@@ -303,7 +351,7 @@ def run_app():
                 data = path.read_bytes()
                 b64 = base64.b64encode(data).decode()
                 safe_markdown(f"""
-                <video autoplay muted loop playsinline style="position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;z-index:-1;">
+                <video autoplay muted loop playsinline style="position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;z-index:-5;">
                     <source src="data:video/mp4;base64,{b64}" type="video/mp4">
                 </video>
                 """)
@@ -316,14 +364,12 @@ def run_app():
     if not video_embedded:
         # GitHub release fallback; use components.html to avoid large markup inside st.markdown
         components.html("""
-        <video autoplay loop muted playsinline style="position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;z-index:-1;">
+        <video autoplay loop muted playsinline style="position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;z-index:-5;">
             <source src="https://github.com/eviltosh/final_cyberpunk_quotes_redux_V4/releases/download/v1.0/cyberpunk_light.mp4" type="video/mp4">
         </video>
         """, height=0, width=0)
 
-    # ------------------------------------------------------------------
-    # Sidebar controls
-    # ------------------------------------------------------------------
+    # ---------------- Sidebar Controls ----------------
     st.sidebar.header("⚙️ Controls")
     tickers_input = st.sidebar.text_input("Enter stock tickers (comma-separated):", "AAPL, TSLA, NVDA")
     period = st.sidebar.selectbox("Select time range:", ["1mo", "3mo", "6mo", "1y", "2y", "5y", "max"])
@@ -406,11 +452,11 @@ def run_app():
         params = {"symbol": symbol, "from": past.isoformat(), "to": today.isoformat(), "token": api_key}
         try:
             response = requests.get(FINNHUB_NEWS_URL, params=params, timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                return [item for item in data if item.get("headline") and item.get("url")]
         except Exception:
-            pass
+            return []
+        if response.status_code == 200:
+            data = response.json()
+            return [item for item in data if item.get("headline") and item.get("url")]
         return []
 
     # ------------------------------------------------------------------
@@ -514,5 +560,3 @@ def run_app():
 # run
 if __name__ == "__main__":
     run_app()
-
-
