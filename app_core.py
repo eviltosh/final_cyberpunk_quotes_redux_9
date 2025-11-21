@@ -14,7 +14,7 @@ st.set_page_config(
     page_title="CYBERPUNK QUOTES",
     page_icon="images/cyberpunk.ico",
     layout="wide",
-    initial_sidebar_state="expanded",
+
 )
 # --- FORCE SIDEBAR VISIBLE INSIDE ANDROID WEBVIEW ---
 st.markdown("""
