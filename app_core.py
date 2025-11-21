@@ -11,6 +11,94 @@ st.set_page_config(
     layout="wide"
 )
 # --- Hide Streamlit's GitHub Icon, Menu, and Footer ---
+st.markdown("""
+<style>
+
+/* REMOVE STREAMLIT MAIN MENU (3 DOTS) */
+#MainMenu {visibility: hidden !important; display: none !important;}
+
+/* REMOVE GITHUB ICONS */
+a[href*="github"], img[src*="github"] {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* REMOVE "FORK THIS APP" TOOLBAR */
+[data-testid="stToolbar"] {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* REMOVE STREAMLIT HEADER BAR */
+header[data-testid="stHeader"] {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+}
+
+/* REMOVE FOOTER BRANDING */
+footer, .stFooter {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+}
+
+/* PREVENT LAYOUT SHIFT AFTER REMOVING HEADER */
+[data-testid="stAppViewContainer"] {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<style>
+
+/* GLOBAL DARK MODE */
+html, body, [data-testid="stAppViewContainer"],
+[data-testid="stApp"], [data-testid="stBody"],
+[data-testid="stMain"], .block-container {
+    background-color: #000 !important;
+    color: #e0e0e0 !important;
+}
+
+/* SIDEBAR DARK MODE */
+section[data-testid="stSidebar"] {
+    background-color: #0a0a0a !important;
+    color: #e0e0e0 !important;
+}
+
+/* INPUT FIELDS */
+input, textarea, select {
+    background-color: #111 !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #333 !important;
+}
+
+/* WIDGET LABELS */
+label, p, span, h2, h3, h4, h5, h6 {
+    color: #e0e0e0 !important;
+}
+
+/* METRIC TEXT COLORS */
+[data-testid="stMetricLabel"], [data-testid="stMetricValue"] {
+    color: #00eaff !important;
+    text-shadow: 0 0 6px rgba(0,234,255,0.8);
+}
+
+/* PLOTLY BACKGROUND */
+.plotly, .stPlotlyChart {
+    background-color: rgba(0,0,0,0) !important;
+}
+
+/* REMOVE ANY LIGHT ELEMENT FLASHES */
+* {
+    background: transparent !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 
 # -------------------------------------------------------
@@ -420,4 +508,3 @@ def run_app():
 # run
 if __name__ == "__main__":
     run_app()
-
