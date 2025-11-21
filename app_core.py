@@ -8,7 +8,8 @@ import base64
 st.set_page_config(
     page_title="Cyberpunk Stock Tracker",
     page_icon="images/cyberpunk.ico",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded",
 )
 # --- Hide Streamlit's GitHub Icon, Menu, and Footer ---
 
@@ -464,5 +465,6 @@ def run_app():
 # run
 if __name__ == "__main__":
     run_app()
+
 
 
