@@ -484,18 +484,21 @@ if __name__ == "__main__":
     run_app()
 
 
-# --- APK Toolbar Fix ---
+# --- APK GitHub Removal Fix ---
 
 st.markdown("""
 <style>
-/* Remove ALL icons inside the top toolbar EXCEPT the sidebar chevron */
+/* Remove GitHub icon ONLY from Android APK toolbar */
 [data-testid="stToolbar"] svg {
     display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
 }
-
-/* KEEP the sidebar chevron visible */
+/* KEEP the chevron visible */
 [data-testid="collapsedControl"] svg {
     display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 </style>
 """, unsafe_allow_html=True)
