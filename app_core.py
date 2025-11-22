@@ -14,6 +14,23 @@ st.set_page_config(
 
 st.markdown("""
 <style>
+/* FIX the Streamlit sidebar toggle arrow */
+[data-testid="stSidebarNavToggle"] {
+    position: absolute !important;
+    top: 0.8rem !important;        /* align vertically inside black bar */
+    left: 0.6rem !important;       /* left edge of screen */
+    z-index: 999999 !important;    /* ensure ALWAYS visible */
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: flex !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+
+st.markdown("""
+<style>
 
 /* Remove GitHub icon & toolbar buttons */
 [data-testid="stDecoration"],
