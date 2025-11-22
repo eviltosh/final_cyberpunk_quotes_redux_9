@@ -14,6 +14,34 @@ st.set_page_config(
 st.markdown("""
 <style>
 
+/* FORCE HEADER ABOVE VIDEO & DARK MASK (APK ONLY PROBLEM) */
+header, [data-testid="stHeader"] {
+    position: relative !important;
+    z-index: 100000 !important;
+    background-color: #000 !important;
+}
+
+/* FORCE CHEVRON TO SHOW */
+[data-testid="collapsedControl"] {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 100001 !important;
+}
+
+/* DO NOT HIDE THE HEADER — ONLY REMOVE TOOLBAR */
+[data-testid="stToolbar"] {
+    display: none !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
+
+st.markdown("""
+<style>
+
 /* Make the top header bar BLACK instead of white */
 header, [data-testid="stHeader"] {
     background-color: #000 !important;
