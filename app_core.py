@@ -503,3 +503,22 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+st.markdown("""
+<style>
+
+/* Remove ONLY the GitHub SVG (last icon) from the toolbar on APK */
+[data-testid="stToolbar"] svg:last-of-type {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+/* Ensure chevron is not affected */
+[data-testid="collapsedControl"] svg {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
