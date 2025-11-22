@@ -506,3 +506,43 @@ def run_app():
 # run
 if __name__ == "__main__":
     run_app()
+
+
+
+# --- FINAL VIDEO + TOOLBAR PATCH (APK-SAFE, MUST BE LAST) ---
+import streamlit as st
+
+# Hide Fork / Github / 3-dots
+st.markdown("""
+<style>
+header, [data-testid="stToolbar"], button[kind="header"], [title="View streamlit"], [title="GitHub repository"], [title="Fork"], [title="Menu"] {
+    display: none !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# Restore Video Background
+st.markdown(f"""
+<style>
+#video-bg-container {{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+}}
+#video-bg-container video {{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}}
+</style>
+
+<div id="video-bg-container">
+    <video autoplay muted loop playsinline>
+        <source src="videos/cyberpunk_light.mp4" type="video/mp4">
+    </video>
+</div>
+""", unsafe_allow_html=True)
