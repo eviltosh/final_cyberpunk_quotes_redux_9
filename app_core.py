@@ -31,8 +31,10 @@ st.markdown("""
 
 /* Ensure sidebar stays visible */
 [data-testid="stSidebar"] {
-    width: 300px !important;
-    min-width: 300px !important;
+
+    min-
+    width: auto !important;
+    min-width: auto !important;
 }
 
 /* Prevent weird horizontal squeezing */
@@ -42,6 +44,7 @@ html, body {
 
 </style>
 """, unsafe_allow_html=True)
+
 
 # -------------------------------------------------------
 # CSS-ONLY SPLASH (SAFE)
@@ -80,6 +83,7 @@ def splash_screen(image_path: str):
             st.markdown(splash_html, unsafe_allow_html=True)
     except:
         pass
+
 
 # -------------------------------------------------------
 # ZERO-FLASH FIX — KEEP SPLASH UNTIL STREAMLIT IS READY
@@ -155,8 +159,8 @@ button[aria-label="Toggle sidebar"] {
 </style>
 """, unsafe_allow_html=True)
 
-def run_app():
 
+def run_app():
     import streamlit.components.v1 as components
     import yfinance as yf
     import requests
@@ -223,7 +227,6 @@ def run_app():
     </style>
     """)
 
-
     safe_markdown("""
     <style>
 
@@ -280,7 +283,8 @@ def run_app():
     # VIDEO BACKGROUND: try local file first, then fallback to GitHub URL
     # ------------------------------------------------------------------
     def try_embed_local_video(path: Path) -> bool:
-      return False
+        return False
+
     video_embedded = try_embed_local_video(Path("videos/cyberpunk_light.mp4"))
 
     # ------------------------------------------------------------------
@@ -310,10 +314,6 @@ def run_app():
 
     if not video_embedded:
 
-
-
-
-
         st.sidebar.header("⚙️ Controls")
         tickers_input = st.sidebar.text_input("Enter stock tickers (comma-separated):", "AAPL, TSLA, NVDA")
         period = st.sidebar.selectbox("Select time range:", ["1mo", "3mo", "6mo", "1y", "2y", "5y", "max"])
@@ -323,7 +323,8 @@ def run_app():
         finnhub_api = st.sidebar.text_input("Finnhub API key", value="", type="password")
 
         st.sidebar.subheader("🌅 Chart Background")
-        bg_choice = st.sidebar.selectbox("Select Background Image:", ["Beach 1", "Beach 2", "Classic", "Upload Your Own"])
+        bg_choice = st.sidebar.selectbox("Select Background Image:",
+                                         ["Beach 1", "Beach 2", "Classic", "Upload Your Own"])
         uploaded_bg = None
         if bg_choice == "Upload Your Own":
             uploaded_bg = st.sidebar.file_uploader("Upload a background image", type=["jpg", "jpeg", "png"])
@@ -500,6 +501,7 @@ def run_app():
     # Footer
     safe_markdown("<hr>")
     safe_markdown("Built with ❤️ — Wizard Q")
+
 
 # run
 if __name__ == "__main__":
