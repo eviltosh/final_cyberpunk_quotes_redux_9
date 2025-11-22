@@ -482,3 +482,21 @@ def run_app():
 # run
 if __name__ == "__main__":
     run_app()
+
+
+# --- APK Toolbar Fix ---
+
+st.markdown("""
+<style>
+/* Remove ALL icons inside the top toolbar EXCEPT the sidebar chevron */
+[data-testid="stToolbar"] svg {
+    display: none !important;
+}
+
+/* KEEP the sidebar chevron visible */
+[data-testid="collapsedControl"] svg {
+    display: block !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
