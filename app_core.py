@@ -10,6 +10,38 @@ st.set_page_config(
     page_icon="images/cyberpunk.ico",
     layout="wide"
 )
+st.markdown("""
+<style>
+
+/* FORCE sidebar to remain functional after collapse */
+[data-testid="stSidebar"] {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 9999 !important;
+}
+
+/* FORCE collapsed sidebar (hidden state) to remain ON SCREEN */
+[data-testid="stSidebar"] [data-testid="collapsedControl"],
+[data-testid="collapsedControl"] {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 999999 !important;
+}
+
+/* PREVENT sidebar from moving off-screen */
+section[data-testid="stSidebar"] {
+    transform: none !important;
+    margin-left: 0 !important;
+    left: 0 !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 
 st.markdown("""
