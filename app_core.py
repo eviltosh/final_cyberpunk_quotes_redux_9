@@ -6,89 +6,45 @@ import base64
 # MUST BE FIRST STREAMLIT COMMAND
 # -------------------------------------------------------
 st.set_page_config(
-    page_title="Cyberpunk Stock Tracker",
-    page_icon="images/cyberpunk.ico",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
 
 
 st.markdown("""
 <style>
-/* FIX the Streamlit sidebar toggle arrow */
-[data-testid="stSidebarNavToggle"] {
+
+/* Force mobile-style hamburger menu even on Desktop */
+@media (min-width: 600px) {
+    [data-testid="stSidebar"] {
+        display: none !important;
+    }
+}
+
+/* Modern hamburger toggle fix */
+[data-testid="stAppHamburger"] {
     position: absolute !important;
-    top: 0.8rem !important;        /* align vertically inside black bar */
-    left: 0.6rem !important;       /* left edge of screen */
-    z-index: 999999 !important;    /* ensure ALWAYS visible */
+    top: 0.8rem !important;
+    left: 0.6rem !important;
+    z-index: 9999999 !important;
     opacity: 1 !important;
     visibility: visible !important;
     display: flex !important;
 }
-</style>
-""", unsafe_allow_html=True)
 
 
-
-st.markdown("""
-<style>
-
-/* Remove GitHub icon & toolbar buttons */
-[data-testid="stDecoration"],
-button[title="View source"],
-a[href*="github.com"],
-[data-testid="stToolbar"] a,
-[data-testid="stToolbar"] button {
-    display: none !important;
-}
-
-/* Header fixed */
-header[data-testid="stHeader"] {
-    background-color: black !important;
-    height: 3.6rem !important;
-    border: none !important;
-    box-shadow: none !important;
-}
-
-/* Correct sidebar behavior */
-[data-testid="stSidebar"] {
-    position: static !important;
-    display: none !important;
-}
-
-/* Sidebar only when expanded */
+/* Allow sidebar to appear when expanded */
 section[data-testid="stSidebar"][aria-expanded="true"] {
     display: block !important;
-}
-
-/* Keep chevron visible */
-[data-testid="collapsedControl"],
-[data-testid="stSidebar"] [data-testid="collapsedControl"] {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    position: relative !important;
-    z-index: 999999 !important;
+    position: fixed !important;
+    top: 0rem !important;
+    left: 0rem !important;
+    z-index: 9999 !important;
+    background-color: #000 !important;
 }
 
 </style>
 """, unsafe_allow_html=True)
-
-
-
-
-
-st.markdown("""
-<style>
-/* Remove GitHub icon ONLY */
-[title="GitHub repository"],
-[data-testid="stToolbarGitHubIcon"],
-a[href*='github.com'] {
-    display: none !important;
-    pointer-events: none !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
 
 
 
@@ -113,7 +69,9 @@ header, [data-testid="stHeader"] {
 }
 
 /* Remove GitHub, Fork, 3-dots menu — but KEEP chevron */
-
+[data-testid="stToolbar"] {
+    display: none !important;
+}
 
 </style>
 """, unsafe_allow_html=True)
@@ -123,7 +81,7 @@ st.markdown("""
 [data-testid="stToolbar"] button[title="View source"] {display:none!important;}
 [data-testid="stToolbar"] a[href*="fork"] {display:none!important;}
 [data-testid="stToolbar"] button[title="Menu"] {display:none!important;}
-
+[data-testid="stToolbar"] {display:none!important;}
 </style>
 """, unsafe_allow_html=True)
 
