@@ -10,44 +10,12 @@ st.set_page_config(
     page_icon="images/cyberpunk.ico",
     layout="wide"
 )
-st.markdown("""
-<style>
-
-/* FORCE sidebar to remain functional after collapse */
-[data-testid="stSidebar"] {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    z-index: 9999 !important;
-}
-
-/* FORCE collapsed sidebar (hidden state) to remain ON SCREEN */
-[data-testid="stSidebar"] [data-testid="collapsedControl"],
-[data-testid="collapsedControl"] {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    position: relative !important;
-    top: 0 !important;
-    left: 0 !important;
-    z-index: 999999 !important;
-}
-
-/* PREVENT sidebar from moving off-screen */
-section[data-testid="stSidebar"] {
-    transform: none !important;
-    margin-left: 0 !important;
-    left: 0 !important;
-}
-
-</style>
-""", unsafe_allow_html=True)
 
 
 st.markdown("""
 <style>
 
-/* Remove GitHub icon & all Streamlit toolbar buttons */
+/* Remove GitHub icon & toolbar buttons */
 [data-testid="stDecoration"],
 button[title="View source"],
 a[href*="github.com"],
@@ -56,21 +24,33 @@ a[href*="github.com"],
     display: none !important;
 }
 
-/* KEEP THE CHEVRON */
-[data-testid="collapsedControl"] {
-    display: flex !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    z-index: 99999 !important;
-}
-
-/* KEEP HEADER */
+/* Header fixed */
 header[data-testid="stHeader"] {
     background-color: black !important;
-    height: 2.4rem !important;
+    height: 3.6rem !important;
     border: none !important;
     box-shadow: none !important;
+}
+
+/* Correct sidebar behavior */
+[data-testid="stSidebar"] {
+    position: static !important;
+    display: none !important;
+}
+
+/* Sidebar only when expanded */
+section[data-testid="stSidebar"][aria-expanded="true"] {
+    display: block !important;
+}
+
+/* Keep chevron visible */
+[data-testid="collapsedControl"],
+[data-testid="stSidebar"] [data-testid="collapsedControl"] {
+    display: flex !important;
+    visibility: visible !important;
     opacity: 1 !important;
+    position: relative !important;
+    z-index: 999999 !important;
 }
 
 </style>
@@ -550,43 +530,3 @@ def run_app():
 # run
 if __name__ == "__main__":
     run_app()
-
-
-# --- APK GitHub Removal Fix ---
-
-st.markdown("""
-<style>
-/* Remove GitHub icon ONLY from Android APK toolbar */
-[data-testid="stToolbar"] svg {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-}
-/* KEEP the chevron visible */
-[data-testid="collapsedControl"] svg {
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown("""
-<style>
-
-/* Remove ONLY the GitHub SVG (last icon) from the toolbar on APK */
-[data-testid="stToolbar"] svg:last-of-type {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-}
-
-/* Ensure chevron is not affected */
-[data-testid="collapsedControl"] svg {
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-
-</style>
-""", unsafe_allow_html=True)
