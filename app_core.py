@@ -179,6 +179,41 @@ splash_screen("images/cyberpunk.jpg")
 # -------------------------------------------------------
 # APP ENTRYPOINT
 # -------------------------------------------------------
+
+
+st.markdown("""
+<style>
+
+/* FINAL CHEVRON FIX — always visible on APK */
+header, [data-testid="stHeader"] {
+    position: relative !important;
+    z-index: 100000 !important;
+    background: #000 !important;
+}
+
+[data-testid="collapsedControl"],
+button[title="Toggle sidebar"],
+button[aria-label="Toggle sidebar"] {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: fixed !important;
+    right: 12px !important;
+    top: 8px !important;
+    z-index: 100001 !important;
+    pointer-events: auto !important;
+}
+
+/* Sidebar above video */
+[data-testid="stSidebar"] {
+    z-index: 100002 !important;
+    background: #000 !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
 def run_app():
 
 
