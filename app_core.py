@@ -11,6 +11,28 @@ st.set_page_config(
     layout="wide"
 )
 # --- Hide Streamlit's GitHub Icon, Menu, and Footer ---
+st.markdown("""
+<style>
+
+/* Restore Streamlit’s natural layout */
+[data-testid="stMain"] {
+    max-width: 1400px !important;
+    margin: 0 auto !important;
+}
+
+/* Ensure sidebar stays visible */
+[data-testid="stSidebar"] {
+    width: 300px !important;
+    min-width: 300px !important;
+}
+
+/* Prevent weird horizontal squeezing */
+html, body {
+    overflow-x: hidden !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 # -------------------------------------------------------
 # CSS-ONLY SPLASH (SAFE)
