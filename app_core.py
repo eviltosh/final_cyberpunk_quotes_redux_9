@@ -10,29 +10,29 @@ st.set_page_config(
     page_icon="images/cyberpunk.ico",
     layout="wide"
 )
-# --- Hide Streamlit's GitHub Icon, Menu, and Footer ---
+
+
 st.markdown("""
 <style>
-
-/* Restore Streamlit’s natural layout */
-[data-testid="stMain"] {
-    max-width: 1400px !important;
-    margin: 0 auto !important;
-}
-
-/* Ensure sidebar stays visible */
-[data-testid="stSidebar"] {
-    width: 300px !important;
-    min-width: 300px !important;
-}
-
-/* Prevent weird horizontal squeezing */
-html, body {
-    overflow-x: hidden !important;
-}
-
+[data-testid="stToolbar"] button[title="View source"] {display:none!important;}
+[data-testid="stToolbar"] a[href*="fork"] {display:none!important;}
+[data-testid="stToolbar"] button[title="Menu"] {display:none!important;}
+[data-testid="stToolbar"] {display:none!important;}
 </style>
 """, unsafe_allow_html=True)
+
+
+st.markdown("""
+<style>
+html, body, [data-testid="stAppViewContainer"], .stApp {
+    background-color:#000!important;
+    color:#EEE!important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# --- Hide Streamlit's GitHub Icon, Menu, and Footer ---
+
 
 # -------------------------------------------------------
 # CSS-ONLY SPLASH (SAFE)
@@ -126,6 +126,8 @@ splash_screen("images/cyberpunk.jpg")
 # -------------------------------------------------------
 def run_app():
 
+
+
     import streamlit.components.v1 as components
     import yfinance as yf
     import requests
@@ -135,6 +137,7 @@ def run_app():
     import time
     import pandas as pd
     import plotly.graph_objects as go
+
 
     # ------------------------------------------------------------------
     # Import rendering helpers from app_render.py (no circular imports)
@@ -165,33 +168,6 @@ def run_app():
     .stApp > div[style] { position: relative; z-index: 1; }
     </style>
     """)
-    # --- SAFE LAYOUT NORMALIZATION (do NOT force display:flex) ---
-    safe_markdown("""
-    <style>
-    /* Keep Streamlit layout flexible and full width */
-    [data-testid="stMain"] { 
-        width: 100% !important; 
-        max-width: 1200px !important; 
-    }
-
-    .block-container { 
-        padding-top: 0.5rem !important; 
-        box-sizing: border-box; 
-    }
-
-    /* Ensure video is visible even if global rules exist */
-    video { 
-        opacity: 1 !important; 
-        visibility: visible !important; 
-        display: block !important; 
-    }
-
-    html, body { 
-        overflow-x: hidden !important; 
-    }
-    </style>
-    """)
-
 
     safe_markdown("""
     <style>
@@ -249,55 +225,47 @@ def run_app():
     # VIDEO BACKGROUND: try local file first, then fallback to GitHub URL
     # ------------------------------------------------------------------
     def try_embed_local_video(path: Path) -> bool:
-      return False
+        try:
+            if path.exists():
+                data = path.read_bytes()
+                b64 = base64.b64encode(data).decode()
+                safe_markdown(f"""
+                <video autoplay muted loop playsinline style="position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;z-index:-1;">
+                    <source src="data:video/mp4;base64,{b64}" type="video/mp4">
+                </video>
+                """)
+                return True
+        except Exception:
+            pass
+        return False
+
     video_embedded = try_embed_local_video(Path("videos/cyberpunk_light.mp4"))
-
-    # ------------------------------------------------------------------
-    # FINAL VIDEO BACKGROUND EMBED (streamed from local videos/ folder)
-    # This ensures no base64 embedding and reliable rendering.
-    # ------------------------------------------------------------------
-    components.html("""
-    <style>
-    .bgvideo {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100vw !important;
-        height: 100vh !important;
-        object-fit: cover !important;
-        z-index: -1 !important;
-        pointer-events: none !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-        display: block !important;
-    }
-    </style>
-    <video class="bgvideo" autoplay muted loop playsinline>
-        <source src="videos/cyberpunk_light.mp4" type="video/mp4">
-    </video>
-    """, height=0, width=0)
-
     if not video_embedded:
+        # GitHub release fallback; use components.html to avoid large markup inside st.markdown
+        components.html("""
+        <video autoplay loop muted playsinline style="position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;z-index:-1;">
+            <source src="https://github.com/eviltosh/final_cyberpunk_quotes_redux_V4/releases/download/v1.0/cyberpunk_light.mp4" type="video/mp4">
+        </video>
+        """, height=0, width=0)
 
+    # ------------------------------------------------------------------
+    # Sidebar controls
+    # ------------------------------------------------------------------
+    st.sidebar.header("⚙️ Controls")
+    tickers_input = st.sidebar.text_input("Enter stock tickers (comma-separated):", "AAPL, TSLA, NVDA")
+    period = st.sidebar.selectbox("Select time range:", ["1mo", "3mo", "6mo", "1y", "2y", "5y", "max"])
+    refresh_rate = st.sidebar.slider("Auto-refresh interval (seconds):", 10, 300, 60)
 
+    st.sidebar.subheader("🔑 API Keys")
+    finnhub_api = st.sidebar.text_input("Finnhub API key", value="", type="password")
 
+    st.sidebar.subheader("🌅 Chart Background")
+    bg_choice = st.sidebar.selectbox("Select Background Image:", ["Beach 1", "Beach 2", "Classic", "Upload Your Own"])
+    uploaded_bg = None
+    if bg_choice == "Upload Your Own":
+        uploaded_bg = st.sidebar.file_uploader("Upload a background image", type=["jpg", "jpeg", "png"])
 
-
-        st.sidebar.header("⚙️ Controls")
-        tickers_input = st.sidebar.text_input("Enter stock tickers (comma-separated):", "AAPL, TSLA, NVDA")
-        period = st.sidebar.selectbox("Select time range:", ["1mo", "3mo", "6mo", "1y", "2y", "5y", "max"])
-        refresh_rate = st.sidebar.slider("Auto-refresh interval (seconds):", 10, 300, 60)
-
-        st.sidebar.subheader("🔑 API Keys")
-        finnhub_api = st.sidebar.text_input("Finnhub API key", value="", type="password")
-
-        st.sidebar.subheader("🌅 Chart Background")
-        bg_choice = st.sidebar.selectbox("Select Background Image:", ["Beach 1", "Beach 2", "Classic", "Upload Your Own"])
-        uploaded_bg = None
-        if bg_choice == "Upload Your Own":
-            uploaded_bg = st.sidebar.file_uploader("Upload a background image", type=["jpg", "jpeg", "png"])
-
-            bg_image = None
+    bg_image = None
     if uploaded_bg is not None:
         try:
             from PIL import Image as PILImage
