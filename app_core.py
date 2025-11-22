@@ -11,6 +11,33 @@ st.set_page_config(
     layout="wide"
 )
 
+st.markdown("""
+<style>
+
+/* Make the top header bar BLACK instead of white */
+header, [data-testid="stHeader"] {
+    background-color: #000 !important;
+    color: #000 !important;
+    height: 2.5rem !important; /* keeps chevron aligned */
+    box-shadow: none !important;
+    border-bottom: none !important;
+}
+
+/* Keep the sidebar chevron fully visible */
+[data-testid="collapsedControl"] {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 9999 !important; /* stays above video */
+}
+
+/* Remove GitHub, Fork, 3-dots menu — but KEEP chevron */
+[data-testid="stToolbar"] {
+    display: none !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 st.markdown("""
 <style>
