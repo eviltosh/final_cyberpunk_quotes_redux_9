@@ -11,6 +11,22 @@ st.set_page_config(
     layout="wide"
 )
 
+
+st.markdown("""
+<style>
+/* Remove GitHub icon ONLY */
+[title="GitHub repository"],
+[data-testid="stToolbarGitHubIcon"],
+a[href*='github.com'] {
+    display: none !important;
+    pointer-events: none !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+
+
 st.markdown("""
 <style>
 
