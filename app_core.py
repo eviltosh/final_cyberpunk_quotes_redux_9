@@ -1,3 +1,6 @@
+# Path of the original uploaded file (for your tooling / transforms)
+ORIGINAL_FILE_PATH = "/mnt/data/app_core.py"
+
 import streamlit as st
 from pathlib import Path
 import base64
@@ -8,46 +11,28 @@ import base64
 st.set_page_config(
     page_title="Cyberpunk Stock Tracker",
     page_icon="images/cyberpunk.ico",
-    layout="wide"
+    layout="wide",
 )
-# FORCE DARK MODE
-st.markdown("""
-<style>
-html, body, [data-testid="stAppViewContainer"], .stApp {
-    background-color: #000 !important;
-    color: #EEE !important;
-}
-</style>
-""", unsafe_allow_html=True)
-# --- Hide Streamlit's GitHub Icon, Menu, and Footer ---
-st.markdown("""
-<style>
-
-/* Restore Streamlit’s natural layout */
-[data-testid="stMain"] {
-    max-width: 1400px !important;
-    margin: 0 auto !important;
-}
-
-/* Ensure sidebar stays visible */
-[data-testid="stSidebar"] {
-
-    min-
-    width: auto !important;
-    min-width: auto !important;
-}
-
-/* Prevent weird horizontal squeezing */
-html, body {
-    overflow-x: hidden !important;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
 
 # -------------------------------------------------------
-# CSS-ONLY SPLASH (SAFE)
+# Minimal global dark theme (keeps header present)
+# -------------------------------------------------------
+st.markdown(
+    """
+    <style>
+    html, body, [data-testid="stAppViewContainer"], .stApp {
+        background-color: #000 !important;
+        color: #EEE !important;
+    }
+    /* keep header area black but visible (do NOT hide header entirely) */
+    header, [data-testid="stToolbar"] { background: #000 !important; }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# -------------------------------------------------------
+# SPLASH (kept but lowered z-index so Android won't permanently block)
 # -------------------------------------------------------
 def splash_screen(image_path: str):
     try:
@@ -72,94 +57,149 @@ def splash_screen(image_path: str):
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                z-index: 999999999;
-                animation: fadeout 2.8s ease-out forwards;
+                z-index: 10000; /* lowered from enormous values */
+                animation: fadeout 2.5s ease-out forwards;
             }}
+            #splash-screen img {{ max-width:70vw; max-height:70vh; }}
             </style>
             <div id="splash-screen">
-                <img src="data:image/jpeg;base64,{b64}" style="max-width:70vw; max-height:70vh;">
+                <img src="data:image/jpeg;base64,{b64}">
             </div>
+            <script>
+            (function() {{
+                // Poll until Streamlit fully hydrates and root has content
+                const maxTries = 200; // 200 * 50ms = 10s
+                let tries = 0;
+                const checkReady = setInterval(() => {{
+                    tries += 1;
+                    const appRoot = document.querySelector('[data-testid="stApp"]');
+                    if (appRoot && appRoot.innerHTML && appRoot.innerHTML.trim().length > 80) {{
+                        clearInterval(checkReady);
+                        const splash = document.getElementById('splash-screen');
+                        if (!splash) return;
+                        splash.style.opacity = '0';
+                        setTimeout(() => {{
+                            splash.style.display = 'none';
+                        }}, 700);
+                    }} else if (tries >= maxTries) {{
+                        // give up after a bit — remove splash so it doesn't block
+                        clearInterval(checkReady);
+                        const splash = document.getElementById('splash-screen');
+                        if (splash) {{
+                            splash.style.opacity = '0';
+                            setTimeout(() => splash.style.display = 'none', 700);
+                        }}
+                    }}
+                }}, 50);
+            }})();
+            </script>
             """
             st.markdown(splash_html, unsafe_allow_html=True)
-    except:
+    except Exception:
         pass
 
 
-# -------------------------------------------------------
-# ZERO-FLASH FIX — KEEP SPLASH UNTIL STREAMLIT IS READY
-# -------------------------------------------------------
-st.markdown("""
-<style>
-/* Force the entire DOM to stay black so Streamlit cannot flash white */
-html, body, [data-testid="stAppViewContainer"],
-[data-testid="stApp"], [data-testid="stBody"],
-[data-testid="stMain"], .block-container {
-    background: black !important;
-}
-
-/* Hold the splash until JS removes it */
-#splash-screen {
-    opacity: 1 !important;
-    transition: opacity 0.8s ease-out;
-}
-</style>
-
-<script>
-// delay removal until Streamlit fully hydrates
-window.addEventListener("load", function() {
-    const splash = document.getElementById("splash-screen");
-    if (!splash) return;
-
-    // Poll until Streamlit app is rendered
-    const checkReady = setInterval(() => {
-        // Streamlit attaches stApp after hydration
-        const appRoot = document.querySelector('[data-testid="stApp"]');
-
-        if (appRoot && appRoot.innerHTML.trim().length > 0) {
-            clearInterval(checkReady);
-
-            // Fade out
-            splash.style.opacity = "0";
-            setTimeout(() => {
-                splash.style.display = "none";
-            }, 900);
-        }
-    }, 50);
-});
-</script>
-""", unsafe_allow_html=True)
-
-# -------------------------------------------------------
-# CALL SPLASH **AFTER** page_config
-# -------------------------------------------------------
+# call splash immediately (still before main UI)
 splash_screen("images/cyberpunk.jpg")
 
 # -------------------------------------------------------
-# APP ENTRYPOINT
+# Centralized APP CSS: keep transparency and ensure video visible behind content
 # -------------------------------------------------------
+st.markdown(
+    """
+    <style>
+    /* Keep main area transparent so the video shows through */
+    html, body, [data-testid="stBody"], [data-testid="stApp"], [data-testid="stAppViewContainer"] {
+        background: transparent !important;
+    }
 
+    /* Ensure the main block sits above the video */
+    .stApp > div[style] { position: relative; z-index: 2; }
 
-st.markdown("""
-<style>
+    /* Make sure video elements are visible and do not capture pointer events */
+    .bgvideo { position: fixed !important; top:0; left:0; width:100vw; height:100vh; object-fit:cover; z-index: -1 !important; pointer-events: none !important; opacity: 1 !important; visibility: visible !important; }
 
-/* LOWER CHEVRON BELOW BLACK BAR FOR APK */
-[data-testid="collapsedControl"],
-button[title="Toggle sidebar"],
-button[aria-label="Toggle sidebar"] {
-    position: fixed !important;
-    top: 36px !important;        /* BELOW BLACK BAR */
-    right: 12px !important;
-    z-index: 200000 !important;  /* ABOVE HEADER + VIDEO */
-    display: flex !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-}
+    /* Sidebar chevron: force it visible and above everything */
+    [data-testid="collapsedControl"],
+    button[title="Toggle sidebar"],
+    button[aria-label="Toggle sidebar"] {
+        position: fixed !important;
+        top: 36px !important;
+        right: 12px !important;
+        z-index: 300000 !important;
+        display: flex !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        background: transparent !important;
+    }
 
-</style>
-""", unsafe_allow_html=True)
+    /* Metrics cyan styling preserved */
+    [data-testid="stMetricLabel"], [data-testid="stMetricValue"] {
+        color: #00eaff !important;
+        text-shadow: 0 0 6px rgba(0,234,255,0.8);
+    }
 
+    /* Prevent horizontal scroll */
+    html, body { overflow-x: hidden !important; }
 
+    /* Small safety: don't hide header content (we'll hide specific buttons only) */
+    header, [data-testid="stToolbar"] { display: block !important; }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# -------------------------------------------------------
+# APK mode: hide ONLY GitHub / Fork buttons (by title or data-testid)
+# but DO NOT hide header or the chevron.
+# -------------------------------------------------------
+st.markdown(
+    """
+    <style>
+    /* Target titles used by Streamlit toolbar buttons (best-effort selectors) */
+    [title="GitHub repository"], /* classic button */
+    [title="Fork"], /* fork button */
+    [aria-label="GitHub repository"], 
+    [data-testid="stToolbarGitHubIcon"] {
+        display: none !important;
+        pointer-events: none !important;
+    }
+    /* If a header link element exists that matches 'View streamlit' or similar, do not hide the entire header */
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# -------------------------------------------------------
+# SINGLE, RELIABLE VIDEO BACKGROUND EMBED
+# Put this once. Use a relative path to your videos folder.
+# If you prefer to provide an absolute URL or transform local path with your tool,
+# modify VIDEO_SRC accordingly.
+# -------------------------------------------------------
+VIDEO_SRC = "videos/cyberpunk_light.mp4"  # keep relative; your deploy should serve this path
+
+st.markdown(
+    f"""
+    <div id="video-bg-container" aria-hidden="true">
+        <video class="bgvideo" autoplay muted loop playsinline preload="auto" poster="" tabindex="-1">
+            <source src="{VIDEO_SRC}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    <style>
+    /* Ensure container occupies space so browsers won't drop the media */
+    #video-bg-container {{ position: fixed; inset:0; width:100%; height:100%; overflow:hidden; z-index: -1; }}
+    #video-bg-container video {{ width:100%; height:100%; object-fit:cover; }}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# -------------------------------------------------------
+# Main app content (kept largely as in your original file,
+# but cleaned for clarity and to avoid conflicts).
+# -------------------------------------------------------
 def run_app():
     import streamlit.components.v1 as components
     import yfinance as yf
@@ -169,198 +209,84 @@ def run_app():
     import datetime
     import time
     import pandas as pd
-    import plotly.graph_objects as go
 
-    # ------------------------------------------------------------------
-    # Import rendering helpers from app_render.py (no circular imports)
-    # ------------------------------------------------------------------
-    from app_render import (
-        render_company_header,
-        render_matplotlib_cyberpunk_chart,
-        render_plotly_fallback
-    )
+    # local helpers (you referenced app_render.py — keep imports)
+    try:
+        from app_render import (
+            render_company_header,
+            render_matplotlib_cyberpunk_chart,
+            render_plotly_fallback,
+        )
+    except Exception:
+        # If app_render isn't available, create minimal fallbacks so app doesn't crash
+        def render_company_header(info, ticker):
+            name = info.get("longName") or info.get("shortName") or ticker
+            st.markdown(f"<h2 style='color:#00eaff;text-shadow:0 0 6px rgba(0,234,255,0.6);'>{name}</h2>", unsafe_allow_html=True)
 
-    # ------------------------------------------------------------------
-    # Helper: safe st.markdown wrapper to avoid accidental reassignment
-    # ------------------------------------------------------------------
+        def render_matplotlib_cyberpunk_chart(hist, ticker, bg_image):
+            # fallback: plot simple st.line_chart
+            try:
+                st.line_chart(hist["Close"])
+            except Exception:
+                pass
+            return True
+
+        def render_plotly_fallback(hist, ticker):
+            st.line_chart(hist["Close"])
+
     def safe_markdown(html: str):
         st.markdown(html, unsafe_allow_html=True)
 
-    # ------------------------------------------------------------------
-    # TRANSPARENCY + BASIC CSS (applied after page config)
-    # ------------------------------------------------------------------
-    safe_markdown("""
-    <style>
-    html, body, [data-testid="stBody"], [data-testid="stApp"],
-    [data-testid="stAppViewContainer"], [data-testid="stMain"],
-    section.main, .block-container { background: transparent !important; }
-
-    .block-container { padding-top: 0rem !important; }
-
-    .stApp > div[style] { position: relative; z-index: 1; }
-    </style>
-    """)
-    # --- SAFE LAYOUT NORMALIZATION (do NOT force display:flex) ---
-    safe_markdown("""
-    <style>
-    /* Keep Streamlit layout flexible and full width */
-    [data-testid="stMain"] { 
-        width: 100% !important; 
-        max-width: 1200px !important; 
-    }
-
-    .block-container { 
-        padding-top: 0.5rem !important; 
-        box-sizing: border-box; 
-    }
-
-    /* Ensure video is visible even if global rules exist */
-    video { 
-        opacity: 1 !important; 
-        visibility: visible !important; 
-        display: block !important; 
-    }
-
-    html, body { 
-        overflow-x: hidden !important; 
-    }
-    </style>
-    """)
-
-    safe_markdown("""
-    <style>
-
-    /* Cyan labels + values (keep this) */
-    [data-testid="stMetricLabel"],
-    [data-testid="stMetricValue"] {
-        color: #00eaff !important;
-        text-shadow: 0 0 6px rgba(0, 234, 255, 0.8);
-    }
-
-    /* DAILY CHANGE DELTA FIX */
-    /* This targets the *actual* delta element you sent */
-    .st-emotion-cache-1wivap2.e14qm3311 {
-        text-shadow: none !important;
-    }
-
-    /* Positive → green */
-    .st-emotion-cache-1wivap2.e14qm3311[style*='color: green'],
-    .st-emotion-cache-1wivap2.e14qm3311 span[style*='color: green'] {
-        color: green !important;
-    }
-
-    /* Negative → red */
-    .st-emotion-cache-1wivap2.e14qm3311[style*='color: red'],
-    .st-emotion-cache-1wivap2.e14qm3311 span[style*='color: red'] {
-        color: red !important;
-    }
-
-    </style>
-    """)
-
-    # ------------------------------------------------------------------
-    # Load external cyberpunk CSS if available, otherwise use a minimal fallback
-    # ------------------------------------------------------------------
-    css_path = Path("cyberpunk_style_embedded.css")
-    if css_path.exists():
-        try:
-            with css_path.open("r", encoding="utf-8") as fh:
-                safe_markdown(f"<style>{fh.read()}</style>")
-        except Exception:
-            # fail silently; fallback provided below
-            pass
-    else:
-        safe_markdown("""
+    # --- keep basic transparency rules for the inner app
+    safe_markdown(
+        """
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Major+Mono+Display&display=swap');
-        .cyberpunk-title { font-family: 'Major Mono Display', monospace; font-size:58px; color:#00eaff; text-align:center; letter-spacing:2px; text-shadow:0 0 8px rgba(0,234,255,0.9),0 0 18px rgba(0,128,170,0.25); position:relative; top:-25px; margin-bottom:6px; }
-        .news-card { background: rgba(0,0,0,0.35); padding:8px; border-radius:8px; margin-bottom:8px; }
-        .card { background: linear-gradient(180deg, rgba(0,0,0,0.45), rgba(0,0,0,0.25)); border-radius:10px; padding:12px; border:1px solid rgba(0,234,255,0.08); }
+        .block-container { padding-top: 0.5rem !important; box-sizing: border-box; }
+        html, body { overflow-x: hidden !important; }
         </style>
-        """)
+        """
+    )
 
-    # ------------------------------------------------------------------
-    # VIDEO BACKGROUND: try local file first, then fallback to GitHub URL
-    # ------------------------------------------------------------------
-    def try_embed_local_video(path: Path) -> bool:
-        return False
+    # Sidebar (controls)
+    st.sidebar.header("⚙️ Controls (APK Mode)")
+    tickers_input = st.sidebar.text_input("Enter stock tickers (comma-separated):", "AAPL, TSLA, NVDA")
+    period = st.sidebar.selectbox("Select time range:", ["1mo", "3mo", "6mo", "1y", "2y", "5y", "max"])
+    refresh_rate = st.sidebar.slider("Auto-refresh interval (seconds):", 10, 300, 60)
 
-    video_embedded = try_embed_local_video(Path("videos/cyberpunk_light.mp4"))
+    st.sidebar.subheader("🔑 API Keys")
+    finnhub_api = st.sidebar.text_input("Finnhub API key", value="", type="password")
 
-    # ------------------------------------------------------------------
-    # FINAL VIDEO BACKGROUND EMBED (streamed from local videos/ folder)
-    # This ensures no base64 embedding and reliable rendering.
-    # ------------------------------------------------------------------
-    components.html("""
-    <style>
-    .bgvideo {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100vw !important;
-        height: 100vh !important;
-        object-fit: cover !important;
-        z-index: -1 !important;
-        pointer-events: none !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-        display: block !important;
-    }
-    </style>
-    <video class="bgvideo" autoplay muted loop playsinline>
-        <source src="videos/cyberpunk_light.mp4" type="video/mp4">
-    </video>
-    """, height=0, width=0)
+    st.sidebar.subheader("🌅 Chart Background")
+    bg_choice = st.sidebar.selectbox("Select Background Image:", ["Beach 1", "Beach 2", "Classic", "Upload Your Own"])
+    uploaded_bg = None
+    if bg_choice == "Upload Your Own":
+        uploaded_bg = st.sidebar.file_uploader("Upload a background image", type=["jpg", "jpeg", "png"])
 
-    if not video_embedded:
-
-        st.sidebar.header("⚙️ Controls")
-        tickers_input = st.sidebar.text_input("Enter stock tickers (comma-separated):", "AAPL, TSLA, NVDA")
-        period = st.sidebar.selectbox("Select time range:", ["1mo", "3mo", "6mo", "1y", "2y", "5y", "max"])
-        refresh_rate = st.sidebar.slider("Auto-refresh interval (seconds):", 10, 300, 60)
-
-        st.sidebar.subheader("🔑 API Keys")
-        finnhub_api = st.sidebar.text_input("Finnhub API key", value="", type="password")
-
-        st.sidebar.subheader("🌅 Chart Background")
-        bg_choice = st.sidebar.selectbox("Select Background Image:",
-                                         ["Beach 1", "Beach 2", "Classic", "Upload Your Own"])
-        uploaded_bg = None
-        if bg_choice == "Upload Your Own":
-            uploaded_bg = st.sidebar.file_uploader("Upload a background image", type=["jpg", "jpeg", "png"])
-
-            bg_image = None
-    if uploaded_bg is not None:
-        try:
-            from PIL import Image as PILImage
-            bg_image = PILImage.open(uploaded_bg)
-        except Exception:
-            bg_image = None
-    else:
-        try:
+    bg_image = None
+    try:
+        if uploaded_bg is not None:
+            bg_image = Image.open(uploaded_bg)
+        else:
             if bg_choice == "Beach 1":
                 bg_image = Image.open("images/1.jpg")
             elif bg_choice == "Beach 2":
                 bg_image = Image.open("images/2.jpg")
             else:
                 bg_image = None
-        except Exception:
-            bg_image = None
+    except Exception:
+        bg_image = None
 
-    # ------------------------------------------------------------------
-    # Title (with one extra line above and two below as requested)
-    # ------------------------------------------------------------------
-    safe_markdown("""
-    <br>
-    <div style='text-align:center;'>
-        <h1 class='cyberpunk-title'>CYBERPUNK QUOTES</h1>
-        <br><br>
-    </div>
-    """)
+    # Title
+    safe_markdown(
+        """
+        <div style='text-align:center;'>
+            <h1 style="font-family: 'Major Mono Display', monospace; font-size:58px; color:#00eaff; text-shadow:0 0 8px rgba(0,234,255,0.9); margin-bottom:6px;">CYBERPUNK QUOTES</h1>
+            <br><br>
+        </div>
+        """
+    )
 
-    # ------------------------------------------------------------------
-    # Tickers list and auto-refresh
-    # ------------------------------------------------------------------
+    # Tickers processing, refresh, caching helpers
     tickers = [t.strip().upper() for t in tickers_input.split(",") if t.strip()]
 
     if "last_refresh" not in st.session_state:
@@ -368,11 +294,8 @@ def run_app():
     else:
         if time.time() - st.session_state["last_refresh"] > refresh_rate:
             st.session_state["last_refresh"] = time.time()
-            st.rerun()
+            st.experimental_rerun()
 
-    # ------------------------------------------------------------------
-    # Cached helpers
-    # ------------------------------------------------------------------
     @st.cache_data(ttl=3600)
     def get_stock_data(ticker: str, period: str):
         try:
@@ -404,9 +327,7 @@ def run_app():
             pass
         return []
 
-    # ------------------------------------------------------------------
-    # Main loop: iterate tickers and render sections
-    # ------------------------------------------------------------------
+    # Main loop
     for ticker in tickers:
         try:
             info = get_info_cached(ticker)
@@ -416,23 +337,14 @@ def run_app():
                 st.warning(f"No data available for {ticker}")
                 continue
 
-            # Render company header
             render_company_header(info, ticker)
 
-            # Try matplotlib cyberpunk chart first
             rendered = render_matplotlib_cyberpunk_chart(hist, ticker, bg_image)
             if not rendered:
                 render_plotly_fallback(hist, ticker)
 
-            # Metrics row
-            # ----------------------------------------------------------
-            # METRICS (2 on top row, 2 on bottom row — only change)
-            # ----------------------------------------------------------
-
-            # Top row: Price, Market Cap
+            # Metrics layout
             row1 = st.columns(2)
-
-            # Bottom row: 52w Range, Daily Change
             row2 = st.columns(2)
 
             c_price, c_cap = row1[0], row1[1]
@@ -450,23 +362,15 @@ def run_app():
                 st.metric("Market Cap", f"${cap:,.0f}" if cap else "N/A")
 
             with c_range:
-                st.metric("52w High / Low", f"${high} / ${low}")
+                st.metric("52w High / Low", f"${high} / ${low}" if high and low else "N/A")
 
             with c_change:
                 hist_5d = get_stock_data(ticker, "5d")
                 if hist_5d is not None and len(hist_5d) >= 2:
-                    change = (
-                            hist_5d["Close"].iloc[-1]
-                            - hist_5d["Close"].iloc[-2]
-                    )
+                    change = hist_5d["Close"].iloc[-1] - hist_5d["Close"].iloc[-2]
                     pct = (change / hist_5d["Close"].iloc[-2]) * 100
-                    st.metric(
-                        "Daily Change",
-                        f"${change:.2f}",
-                        f"{pct:.2f}%"
-                    )
+                    st.metric("Daily Change", f"${change:.2f}", f"{pct:.2f}%")
 
-            # Company info
             summary = info.get("longBusinessSummary", "No company description available.")
             if summary and summary.strip():
                 with st.expander("📘 Company Info (click to expand)"):
@@ -488,7 +392,8 @@ def run_app():
                     dt = datetime.datetime.fromtimestamp(article.get("datetime", 0))
                     t_str = dt.strftime("%b %d, %Y")
                     safe_markdown(
-                        f"<div class='news-card'><a href='{article.get('url')}' target='_blank'><b>{article.get('headline')}</b></a><br><small>{article.get('source', 'Unknown')} | {t_str}</small></div>")
+                        f"<div style='background:rgba(0,0,0,0.35); padding:8px; border-radius:8px; margin-bottom:8px;'><a href='{article.get('url')}' target='_blank' rel='noopener noreferrer'><b style='color:#fff'>{article.get('headline')}</b></a><br><small style='color:#ccc'>{article.get('source', 'Unknown')} | {t_str}</small></div>"
+                    )
             else:
                 if finnhub_api:
                     st.info("No recent news available.")
@@ -506,43 +411,3 @@ def run_app():
 # run
 if __name__ == "__main__":
     run_app()
-
-
-
-# --- FINAL VIDEO + TOOLBAR PATCH (APK-SAFE, MUST BE LAST) ---
-import streamlit as st
-
-# Hide Fork / Github / 3-dots
-st.markdown("""
-<style>
-header, [data-testid="stToolbar"], button[kind="header"], [title="View streamlit"], [title="GitHub repository"], [title="Fork"], [title="Menu"] {
-    display: none !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# Restore Video Background
-st.markdown(f"""
-<style>
-#video-bg-container {{
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    z-index: -1;
-}}
-#video-bg-container video {{
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}}
-</style>
-
-<div id="video-bg-container">
-    <video autoplay muted loop playsinline>
-        <source src="videos/cyberpunk_light.mp4" type="video/mp4">
-    </video>
-</div>
-""", unsafe_allow_html=True)
