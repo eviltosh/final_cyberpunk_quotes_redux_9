@@ -14,6 +14,42 @@ st.set_page_config(
 
 st.markdown("""
 <style>
+
+/* Remove GitHub icon & all Streamlit toolbar buttons */
+[data-testid="stDecoration"],
+button[title="View source"],
+a[href*="github.com"],
+[data-testid="stToolbar"] a,
+[data-testid="stToolbar"] button {
+    display: none !important;
+}
+
+/* KEEP THE CHEVRON */
+[data-testid="collapsedControl"] {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 99999 !important;
+}
+
+/* KEEP HEADER */
+header[data-testid="stHeader"] {
+    background-color: black !important;
+    height: 2.4rem !important;
+    border: none !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
+
+
+
+st.markdown("""
+<style>
 /* Remove GitHub icon ONLY */
 [title="GitHub repository"],
 [data-testid="stToolbarGitHubIcon"],
